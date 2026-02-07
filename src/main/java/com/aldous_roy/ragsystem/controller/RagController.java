@@ -23,6 +23,10 @@ public class RagController {
         this.openAIService = openAIService;
     }
 
+    @GetMapping()
+    public String checkout(){
+        return "The server is working";
+    }
     @PostMapping
     public String ask(@RequestBody String question) throws Exception {
 

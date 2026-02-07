@@ -1,5 +1,6 @@
 package com.aldous_roy.ragsystem.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -40,14 +41,23 @@ public class OpenAIService {
         post.setEntity(new StringEntity(json));
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
-            return client.execute(post, response ->
-                    mapper.readTree(response.getEntity().getContent())
-                            .get("choices")
-                            .get(0)
-                            .get("message")
-                            .get("content")
-                            .asText()
-            );
+            return client.execute(post, response -> {
+                JsonNode jsonNode = mapper.readTree(response.getEntity().getContent());
+                System.out.println("OpenAI response: " + jsonNode.toPrettyString());
+
+                if (jsonNode.has("error")) {
+                    throw new RuntimeException(
+                            "OpenAI Error: " + jsonNode.get("error").get("message").asText()
+                    );
+                }
+
+                return jsonNode
+                        .get("choices")
+                        .get(0)
+                        .get("message")
+                        .get("content")
+                        .asText();
+            });
         }
     }
 }

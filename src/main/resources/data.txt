@@ -1,0 +1,4 @@
+Spring Boot is a Java-based framework for building standalone applications.
+RAG stands for Retrieval Augmented Generation.
+RAG improves LLM accuracy by injecting external knowledge.
+LLMs do not have real-time access to documents unless provided.
