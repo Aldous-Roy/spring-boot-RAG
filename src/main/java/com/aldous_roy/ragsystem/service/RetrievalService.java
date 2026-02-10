@@ -9,14 +9,32 @@ import java.util.List;
 public class RetrievalService {
 
     public List<String> retrieveRelevantChunks(List<String> lines, String question) {
+
         List<String> relevant = new ArrayList<>();
 
+        // Clean and split the question into keywords
+        String[] keywords = question
+                .toLowerCase()
+                .replaceAll("[^a-z0-9 ]", "")
+                .split("\\s+");
+
         for (String line : lines) {
-            if (line.toLowerCase().contains(question.toLowerCase())) {
-                relevant.add(line);
+            String lowerLine = line.toLowerCase();
+
+            for (String keyword : keywords) {
+                // ignore very small/common words
+                if (keyword.length() > 3 && lowerLine.contains(keyword)) {
+                    relevant.add(line);
+                    break;
+                }
             }
         }
 
-        return relevant.isEmpty() ? lines.subList(0, Math.min(2, lines.size())) : relevant;
+        // Fallback: always return some context
+        if (relevant.isEmpty()) {
+            return lines.subList(0, Math.min(5, lines.size()));
+        }
+
+        return relevant;
     }
 }
