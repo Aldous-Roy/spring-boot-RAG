@@ -1,7 +1,7 @@
 package com.aldous_roy.ragsystem.controller;
 
 import com.aldous_roy.ragsystem.service.FileReaderService;
-import com.aldous_roy.ragsystem.service.OpenAIService;
+import com.aldous_roy.ragsystem.service.OllamaService;
 import com.aldous_roy.ragsystem.service.RetrievalService;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,27 +13,30 @@ public class RagController {
 
     private final FileReaderService fileReaderService;
     private final RetrievalService retrievalService;
-    private final OpenAIService openAIService;
+    private final OllamaService ollamaService;
 
     public RagController(FileReaderService fileReaderService,
                          RetrievalService retrievalService,
-                         OpenAIService openAIService) {
+                         OllamaService ollamaService) {
         this.fileReaderService = fileReaderService;
         this.retrievalService = retrievalService;
-        this.openAIService = openAIService;
+        this.ollamaService = ollamaService;
     }
 
-    @GetMapping()
-    public String checkout(){
+    @GetMapping
+    public String checkout() {
         return "The server is working";
     }
+
     @PostMapping
     public String ask(@RequestBody String question) throws Exception {
 
         List<String> lines = fileReaderService.readFile();
-        List<String> relevant = retrievalService.retrieveRelevantChunks(lines, question);
+        List<String> relevant =
+                retrievalService.retrieveRelevantChunks(lines, question);
 
         String context = String.join("\n", relevant);
-        return openAIService.askOpenAI(context, question);
+
+        return ollamaService.ask(context, question);
     }
 }
